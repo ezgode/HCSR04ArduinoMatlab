@@ -16,7 +16,7 @@ classdef Obstacle < handle
             end
             obj.setSize(Siz);            
             obj.setPos(P);
-            obj.handle3Dplot = [];
+            obj.handle3Dplot = gobjects(6,1);
             %obj.solveGeometry;
         end
         
@@ -35,7 +35,10 @@ classdef Obstacle < handle
         %% f
         function plot(obj,Ax)
             Color = [1 0 0];
-            obj.handle3Dplot = Draw.patch_in(Ax,obj.handle3Dplot,obj.faces,Color);
+            for i = 1:6
+                F = obj.faces{i};
+                obj.handle3Dplot(i) = patchIn(Ax,obj.handle3Dplot(i),F(1,:),F(2,:),F(3,:),Color);
+            end
         end
     end
     

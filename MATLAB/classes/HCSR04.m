@@ -29,8 +29,8 @@ classdef HCSR04 < handle
             
             obj.solveGeometry;
             
-            obj.handle3DPlot = cell(3,1);
-            obj.handleDistPlot   = cell(2,1);
+            obj.handle3DPlot = gobjects(49);
+            obj.handleDistPlot   = gobjects(2,1);
         end
         %% SET
         function setData(obj,d), obj.Data = d;                          end
@@ -52,27 +52,23 @@ classdef HCSR04 < handle
         %% plot
         function plot(obj,Ax)
             Col = [1 1 1]*.8;
-            for i = 1:length(obj.Geom.Face{1})
-                F = obj.Geom.Face{1}{i};
-                obj.handle3DPlot{1} = patchIn(Ax,obj.handle3DPlot{1},F(1,:),F(2,:),F(3,:),Col);
-            end
-            for i = 1:length(obj.Geom.Face{2})
-                F = obj.Geom.Face{2}{i};
-                obj.handle3DPlot{2} = patchIn(Ax,obj.handle3DPlot{2},F(1,:),F(2,:),F(3,:),Col);
-            end
-            for i = 1:length(obj.Geom.Face{3})
-                F = obj.Geom.Face{3}{i};
-                obj.handle3DPlot{3} = patchIn(Ax,obj.handle3DPlot{3},F(1,:),F(2,:),F(3,:),Col);            
-            end            
+            hcont = 0;
+            for i = 1:length(obj.Geom.Face)
+                for j = 1:size(obj.Geom.Face{i},1)
+                    hcont = hcont + 1;
+                    F = obj.Geom.Face{i}{j};
+                    obj.handle3DPlot(hcont) = patchIn(Ax,obj.handle3DPlot(hcont),F(1,:),F(2,:),F(3,:),Col);        
+                end
+            end          
         end
         %% plot Dist
         function plotDist(obj,Ax)
             xdata = [0 0];
             ydata = [-obj.Geom.Cil_Height*0.5 , -obj.getData];
             %plot line 
-            obj.handleDistPlot{1} = plotIn(Ax,obj.handleDistPlot{1},xdata,ydata,'LineWidth',2);
+            obj.handleDistPlot(1) = plotIn(Ax,obj.handleDistPlot(1),xdata,ydata,'LineWidth',2);
             %plot measure
-            obj.handleDistPlot{2} =textIn(Ax,obj.handleDistPlot{2},mean(xdata),mean(ydata),sprintf('%6.3f cm',obj.getData),...
+            obj.handleDistPlot(2) =textIn(Ax,obj.handleDistPlot(2),mean(xdata),mean(ydata),0,sprintf('%6.3f cm',obj.getData),...
                 'HorizontalAlignment','center','VerticalAlignment','bottom',...
                 'FontSize',16);
         end
@@ -119,6 +115,7 @@ classdef HCSR04 < handle
             %Plot sensor and obstacle
             obj.plot(Ax(1));
             Obs.plot(Ax(1));
+        
             axis(Ax(1),'equal');
                 
             nWaves{1} = 6;
@@ -169,7 +166,7 @@ classdef HCSR04 < handle
                 end                
                 for j = 1:2
                     for i = 1:nWaves{j}
-                        C{j}{i,1} = Circle(POS{j}, max(0,R{j}(i)), 60, ThRange{j});
+                        C{j}{i,1} = circle(POS{j}, max(0,R{j}(i)), 60, ThRange{j});
                         H{j}{i,1} = plotIn(Ax(1),H{j}{i,1},C{j}{i,1}(:,1),C{j}{i,1}(:,2),'Color',Color{j},'LineWidth',2);
                     end
                 end
@@ -177,6 +174,7 @@ classdef HCSR04 < handle
                 for i = 1:4
                     Htime{i} = stairsIn(Ax(i+1), Htime{i}, xdata(1:k), ydata{i}(1:k),'LineWidth',2,'Color',ColLine(i,:));
                 end
+                drawnow;
                 %saveImg(F,sprintf('%03d.png',k),'./Gifs/00Animation/',2200/1080,2.5);
                 %pause(0.1)
             end
